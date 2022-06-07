@@ -1,0 +1,28 @@
+version: "3.4"
+services:
+  promtail:
+    hostname: ${HOSTNAME}
+    image: grafana/promtail:main
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /run/log:/run/log
+      - /etc/loki:/etc/loki
+      - /var/log:/var/log
+      - /var/mail:/var/mail
+      - /var/spool/mail:/var/spool/mail
+    command: -config.expand-env -config.file=/etc/loki/promtail.yml
+    restart: unless-stopped
+  watchtower:
+    image: containrrr/watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_LABEL_ENABLE=true
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    restart: unless-stopped
+
